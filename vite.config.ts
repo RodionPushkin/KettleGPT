@@ -1,8 +1,12 @@
 import react from "@vitejs/plugin-react-swc";
 import { defineConfig } from "vite";
+// @ts-ignore
 import eslintPlugin from "vite-plugin-eslint";
+import fs from "fs";
+import path from "path";
 
-// https://vitejs.dev/config/
+const cert = fs.readFileSync(path.resolve(__dirname, "localhost.pem"));
+const key = fs.readFileSync(path.resolve(__dirname, "localhost-key.pem"));
 export default defineConfig({
   plugins: [
     react(),
@@ -12,5 +16,9 @@ export default defineConfig({
   ],
   server: {
     port: 8080,
+    https: {
+      cert,
+      key,
+    },
   },
 });

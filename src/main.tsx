@@ -7,7 +7,6 @@ import { createRoot } from "react-dom/client";
 import App from "./app/App.tsx";
 
 const gpu = new GPU();
-
 const add = gpu
   .createKernel(function (a: number, b: number): number {
     return a + b;
@@ -25,6 +24,14 @@ async function loadWasm() {
 }
 
 loadWasm().catch(console.error);
+
+const setScreenHeight = () => {
+  const vh: number = window.innerHeight * 0.01;
+  document.documentElement.style.setProperty("--vh", `${vh}px`);
+  document.documentElement.style.setProperty("--wh", `${window.innerHeight}px`);
+};
+// window.addEventListener("resize", setScreenHeight);
+window.addEventListener("load", setScreenHeight);
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>

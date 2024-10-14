@@ -20,6 +20,6 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["src/**/*"], // Убедись, что включены все файлы проекта
+  "include": ["src/**/*"],
   "exclude": ["node_modules", "dist", "src/assembly/**/*"]
 }

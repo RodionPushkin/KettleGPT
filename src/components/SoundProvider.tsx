@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect } from "react";
+import React, { createContext, useContext, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import useSound from "use-sound";
 
@@ -10,6 +10,7 @@ const SoundContext = createContext<any>(null);
 export const SoundProvider = ({ children }: { children: React.ReactNode }) => {
   const isMuted = useSelector((state: RootState) => state.sound.isMuted);
   const sounds = useSelector((state: RootState) => state.sound.sounds);
+  const interval = useRef(0);
   const dispatch = useDispatch();
   let windowVisibleTimeout: number = 0;
   const soundContextValue: any = {
@@ -17,39 +18,26 @@ export const SoundProvider = ({ children }: { children: React.ReactNode }) => {
       dispatch(toggleMute());
       for (const key of Object.keys(soundContextValue)) {
         if (key == "toggle" || !soundContextValue[key].loop) continue;
-        if (isMuted)
-          fade(soundContextValue[key].sound, true, soundContextValue[key].play);
-        else
-          fade(
-            soundContextValue[key].sound,
-            false,
-            soundContextValue[key].stop,
-          );
+        if (isMuted) fade(soundContextValue[key].sound, true);
+        else fade(soundContextValue[key].sound, false);
       }
     },
   };
-  const fade = (
-    sound: any,
-    direction: boolean = true,
-    callback: () => void,
-  ) => {
+  const fade = (sound: any, direction: boolean = true) => {
     let counter: number = 0;
-    if (direction && callback) {
+    clearInterval(interval.current);
+    if (direction) {
       sound.volume(0);
-      callback();
     }
-    const interval = setInterval(() => {
+    interval.current = setInterval(() => {
       counter += 0.1;
       if (direction) {
         sound.volume(0 + counter);
       } else {
-        sound.volume(1 - counter);
+        sound.volume(0.4 - counter);
       }
-    }, 100);
-    setTimeout(() => {
-      clearInterval(interval);
-      if (!direction && callback) callback();
-    }, 1000);
+      if (counter >= 0.4) clearInterval(interval.current);
+    }, 50);
   };
   for (const key of Object.keys(sounds)) {
     const current = sounds[key];
@@ -61,6 +49,8 @@ export const SoundProvider = ({ children }: { children: React.ReactNode }) => {
         {
           soundEnabled: source.repeat ? undefined : !isMuted,
           loop: source.repeat,
+          autoplay: source.repeat,
+          volume: source.repeat ? 0 : 1,
         },
       );
       players.push({ play, stop, duration, loop: source.repeat, sound });
@@ -84,19 +74,8 @@ export const SoundProvider = ({ children }: { children: React.ReactNode }) => {
         if (!isMuted && Object.keys(soundContextValue).length > 1)
           for (const key of Object.keys(soundContextValue)) {
             if (key == "toggle" || !soundContextValue[key].loop) continue;
-            if (!document.hidden) {
-              soundContextValue[key].play();
-              fade(
-                soundContextValue[key].sound,
-                true,
-                soundContextValue[key].play,
-              );
-            } else
-              fade(
-                soundContextValue[key].sound,
-                false,
-                soundContextValue[key].stop,
-              );
+            if (!document.hidden) fade(soundContextValue[key].sound, true);
+            else fade(soundContextValue[key].sound, false);
           }
       }, 1000);
     };
