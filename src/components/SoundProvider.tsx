@@ -34,9 +34,9 @@ export const SoundProvider = ({ children }: { children: React.ReactNode }) => {
       if (direction) {
         sound.volume(0 + counter);
       } else {
-        sound.volume(0.4 - counter);
+        sound.volume(0.8 - counter);
       }
-      if (counter >= 0.4) clearInterval(interval.current);
+      if (counter >= 0.8) clearInterval(interval.current);
     }, 50);
   };
   for (const key of Object.keys(sounds)) {
@@ -59,6 +59,11 @@ export const SoundProvider = ({ children }: { children: React.ReactNode }) => {
       play: () => {
         dispatch(updateSoundCounter(key));
         players[current.counter || 0].play();
+        if (!isMuted) {
+          if (key === "click" && "vibrate" in navigator)
+            navigator.vibrate(Math.round(Math.random() * 10) + 40);
+          else console.log("Вибрация не поддерживается");
+        }
       },
       stop: () => {
         players.map((player: any) => player.stop());

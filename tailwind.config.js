@@ -8,7 +8,7 @@ export default {
       },
       colors: {
         primary: '#FFFFFF',
-        transparent: '#FFFFFF12',
+        transparent: 'rgba(255, 255, 255, 0.16)',
         secondary: '#00C572',
       },
       minHeight: {

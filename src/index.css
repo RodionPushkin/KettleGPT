@@ -6,3 +6,7 @@
   @apply text-primary;
   @apply w-screen;
 }
+body{
+  
+  @apply overflow-hidden
+}

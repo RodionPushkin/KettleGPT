@@ -4,11 +4,11 @@ import { Outlet } from "react-router-dom";
 import Backgound from "./Backgound";
 import HeaderComponent from "./HeaderComponent";
 
-const Layout: React.FC = () => (
+const LayoutChat: React.FC = () => (
   <>
     <HeaderComponent />
-    <div className="min-h-mobile-screen columns-1 xl:columns-2 relative">
-      <Backgound className="xl:static" />
+    <div className="min-h-mobile-screen columns-1 relative">
+      <Backgound />
       <main className="relative z-10">
         <Outlet />
       </main>
@@ -16,4 +16,4 @@ const Layout: React.FC = () => (
   </>
 );
 
-export default Layout;
+export default LayoutChat;
