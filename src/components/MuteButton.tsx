@@ -1,3 +1,4 @@
+import { motion } from "framer-motion";
 import React, { useEffect, useRef } from "react";
 import { useSelector } from "react-redux";
 
@@ -8,15 +9,15 @@ const MuteButton: React.FC = () => {
   const { toggle, hover, click } = useSoundContext();
   const canvas = useRef<HTMLCanvasElement>(null);
   const isMuted = useSelector((state: RootState) => state.sound.isMuted);
-  const height = useRef(0);
+  const height = useRef(isMuted ? 0 : 10);
   const frame = useRef(0);
   const toggleInterval = useRef(0);
   const toggleMute = () => {
+    click.play();
+    toggle();
     if (toggleInterval.current) {
       clearInterval(toggleInterval.current);
     }
-    click.play();
-    toggle();
     toggleInterval.current = setInterval(() => {
       if (isMuted) {
         if (height.current >= 10) height.current = 10;
@@ -58,9 +59,21 @@ const MuteButton: React.FC = () => {
       return () => clearInterval(interval);
     }
   }, [canvas.current]);
+
+  // useEffect(() => {
+  //   canvasAnimation();
+  // }, []);
+
   return (
-    <div
-      className="bg-primary rounded-full ml-auto w-10 h-10 cursor-pointer flex place-content-center
+    <motion.div
+      animate={{
+        display: "flex",
+        transition: {
+          ease: "easeOut",
+          delay: 1.9,
+        },
+      }}
+      className="hidden bg-primary rounded-full ml-auto w-10 h-10 cursor-pointer place-content-center
       p-2"
       onClick={toggleMute}
       onMouseEnter={hover.play}
@@ -71,11 +84,11 @@ const MuteButton: React.FC = () => {
         width="24px"
         style={{
           maskImage:
-            "radial-gradient(circle, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 1) 50%, rgba(0, 0, 0, 0) 80%, rgba(0, 0, 0, 0) 100%)",
+            "radial-gradient(circle, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 1) 50%, rgba(0, 0, 0, 0.05) 70%, rgba(0, 0, 0, 0) 100%)",
         }}
         ref={canvas}
       />
-    </div>
+    </motion.div>
   );
 };
 
