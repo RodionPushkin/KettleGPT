@@ -7,6 +7,35 @@
   @apply w-screen;
 }
 body{
-  
   @apply overflow-hidden
+}
+
+textarea::-webkit-scrollbar {
+  width: 16px;
+}
+
+textarea::-webkit-scrollbar-track {
+  border-radius: 100px;
+  background: #ffffff;
+}
+
+textarea::-webkit-scrollbar-thumb {
+  background: #888;
+  background-clip: content-box;
+  border: 7px solid #ffffff;
+}
+
+textarea::-webkit-scrollbar-thumb:hover {
+  background: #555;
+  background-clip: content-box;
+  border: 7px solid #ffffff;
+}
+::-webkit-scrollbar-track-piece {
+  background: rgba(0, 0, 0, 0.0);
+}
+::-webkit-scrollbar-button {
+  background: rgba(0, 0, 0, 0.0);
+}
+::-webkit-scrollbar-corner {
+  background: rgba(0, 0, 0, 0.0);
 }
