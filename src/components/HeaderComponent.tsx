@@ -14,7 +14,7 @@ import { useSoundContext } from "./SoundProvider";
 
 const HeaderComponent: React.FC = () => {
   const { click, hover } = useSoundContext();
-  const isOpen = useRef(true);
+  const isOpen = useRef(false);
 
   const [scope, animate] = useAnimate();
   const staggerList = stagger(0.1, { startDelay: 0.25 });
@@ -53,8 +53,8 @@ const HeaderComponent: React.FC = () => {
   return (
     <motion.header
       animate={{
-        backgroundColor: "rgba(0,0,0,0)",
         top: "1.5rem",
+        paddingTop: 0,
         height: "unset",
         transition: {
           ease: "easeOut",
@@ -62,7 +62,7 @@ const HeaderComponent: React.FC = () => {
           delay: 2.2,
         },
       }}
-      className="fixed top-0 left-0 h-screen bg-black flex items-center justify-center w-screen z-[9999] px-4 select-none"
+      className="fixed top-0 left-0 h-screen items-center flex justify-center w-screen z-[9999] px-4 select-none"
       ref={scope}
     >
       <motion.div
@@ -139,6 +139,7 @@ const HeaderComponent: React.FC = () => {
         <motion.ul
           animate={{
             display: "flex",
+            opacity: 1,
             transition: {
               ease: "easeOut",
               delay: 1.8,

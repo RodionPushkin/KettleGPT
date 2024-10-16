@@ -14,6 +14,9 @@ export default {
       minHeight: {
         'mobile-screen': 'calc(var(--vh, 1vh) * 100)',
       },
+      maxHeight: {
+        'mobile-screen': 'calc(var(--vh, 1vh) * 100)',
+      },
     },
   },
   plugins: [],
