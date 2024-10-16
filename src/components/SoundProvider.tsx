@@ -10,9 +10,11 @@ const SoundContext = createContext<any>(null);
 export const SoundProvider = ({ children }: { children: React.ReactNode }) => {
   const isMuted = useSelector((state: RootState) => state.sound.isMuted);
   const sounds = useSelector((state: RootState) => state.sound.sounds);
-  const interval = useRef(0);
+  const interval = useRef<ReturnType<typeof setInterval> | undefined>();
   const dispatch = useDispatch();
-  let windowVisibleTimeout: number = 0;
+  const windowVisibleTimeout = useRef<
+    ReturnType<typeof setTimeout> | undefined
+  >();
   const soundContextValue: any = {
     toggle: () => {
       dispatch(toggleMute());
@@ -25,10 +27,10 @@ export const SoundProvider = ({ children }: { children: React.ReactNode }) => {
   };
   const fade = (sound: any, direction: boolean = true) => {
     let counter: number = 0;
-    clearInterval(interval.current);
-    if (direction) {
-      sound.volume(0);
-    }
+    if (interval.current !== null) clearInterval(interval.current);
+
+    if (direction) sound.volume(0);
+
     interval.current = setInterval(() => {
       counter += 0.1;
       if (direction) {
@@ -74,8 +76,10 @@ export const SoundProvider = ({ children }: { children: React.ReactNode }) => {
   }
   useEffect(() => {
     const handleVisibilityChange = () => {
-      clearTimeout(windowVisibleTimeout);
-      windowVisibleTimeout = setTimeout(() => {
+      if (windowVisibleTimeout.current !== null)
+        clearTimeout(windowVisibleTimeout.current);
+
+      windowVisibleTimeout.current = setTimeout(() => {
         if (!isMuted && Object.keys(soundContextValue).length > 1)
           for (const key of Object.keys(soundContextValue)) {
             if (key == "toggle" || !soundContextValue[key].loop) continue;

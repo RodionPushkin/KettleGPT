@@ -11,13 +11,12 @@ const MuteButton: React.FC = () => {
   const isMuted = useSelector((state: RootState) => state.sound.isMuted);
   const height = useRef(isMuted ? 0 : 10);
   const frame = useRef(0);
-  const toggleInterval = useRef(0);
+  const toggleInterval = useRef<ReturnType<typeof setInterval> | undefined>();
   const toggleMute = () => {
     click.play();
     toggle();
-    if (toggleInterval.current) {
-      clearInterval(toggleInterval.current);
-    }
+    if (toggleInterval.current) clearInterval(toggleInterval.current);
+
     toggleInterval.current = setInterval(() => {
       if (isMuted) {
         if (height.current >= 10) height.current = 10;

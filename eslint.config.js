@@ -55,6 +55,6 @@ export default [
   },
   prettierConfig,
   {
-    ignores: ["src/assembly/**/*","dist"],
+    ignores: ["src/assembly/**/*","dist","node_modules"],
   },
 ];
