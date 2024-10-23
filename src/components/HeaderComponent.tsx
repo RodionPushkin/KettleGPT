@@ -1,5 +1,6 @@
 import { motion, stagger, useAnimate } from "framer-motion";
 import React, { useEffect, useRef } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 
 import arrowRight from "/arrow-right.svg";
@@ -9,16 +10,21 @@ import login from "/log-in.svg";
 import logout from "/log-out.svg";
 import message from "/message-circle.svg";
 
+import { logoutUser } from "../store/slices/userSlice";
+import { AppDispatch, RootState } from "../store/store";
 import MuteButton from "./MuteButton";
 import { useSoundContext } from "./SoundProvider";
 
 const HeaderComponent: React.FC = () => {
-  const { click, hover } = useSoundContext();
+  const { click, hover, pageExit } = useSoundContext();
   const isOpen = useRef(false);
 
   const [scope, animate] = useAnimate();
   const staggerList = stagger(0.1, { startDelay: 0.25 });
-  const isLoggedIn = useRef(true);
+  const dispatch = useDispatch<AppDispatch>();
+  const isLoggedIn = useSelector(
+    (state: RootState) => state.user.uuid.length > 0,
+  );
   useEffect(() => {
     animate(
       "ul",
@@ -49,6 +55,9 @@ const HeaderComponent: React.FC = () => {
       setTimeout(() => {
         isOpen.current = false;
       }, 10);
+    setTimeout(() => {
+      pageExit.play();
+    }, 1600);
   }, []);
   return (
     <motion.header
@@ -163,7 +172,7 @@ const HeaderComponent: React.FC = () => {
               Презентация
             </Link>
           </motion.li>
-          {isLoggedIn ? (
+          {!isLoggedIn ? (
             <>
               <motion.li
                 className="overflow-hidden bg-primary rounded-full"
@@ -221,6 +230,7 @@ const HeaderComponent: React.FC = () => {
                 onClick={() => {
                   click.play();
                   isOpen.current = !isOpen.current;
+                  dispatch(logoutUser());
                 }}
                 onMouseEnter={hover.play}
               >

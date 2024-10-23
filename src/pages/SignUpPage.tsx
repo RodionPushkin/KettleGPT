@@ -1,21 +1,31 @@
-// import { motion } from "framer-motion";
 import { motion } from "framer-motion";
 import React from "react";
 import { useForm } from "react-hook-form";
+import { useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
 
 import arrowRight from "/arrow-right.svg";
 
 import { useSoundContext } from "../components/SoundProvider";
+import { loadUser, registerUser } from "../store/slices/userSlice";
+import { AppDispatch } from "../store/store";
+import { SignUpData } from "../types";
 const SignUpPage: React.FC = () => {
   const { click, hover } = useSoundContext();
+  const dispatch = useDispatch<AppDispatch>();
+  const navigate = useNavigate();
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm();
+  } = useForm<SignUpData>();
 
-  const onSubmit = (data: any) => {
-    console.log(data);
+  const onSubmit = (data: SignUpData) => {
+    dispatch(registerUser(data)).then(() => {
+      dispatch(loadUser()).then(() => {
+        navigate("/chat");
+      });
+    });
   };
   return (
     <motion.div
@@ -38,9 +48,10 @@ const SignUpPage: React.FC = () => {
             type="text"
             onClick={click.play}
             onMouseEnter={hover.play}
+            maxLength={20}
             {...register("username", {
               required: "Юзернейм обязательный",
-              maxLength: { value: 50, message: "Максимум 50 символов" },
+              maxLength: { value: 20, message: "Максимум 20 символов" },
             })}
             className={`outline-none text-black w-full px-4 py-2 border ${errors.username ? "border-secondary" : "none"} rounded-[2rem]`}
           />
@@ -56,6 +67,7 @@ const SignUpPage: React.FC = () => {
             type="email"
             onClick={click.play}
             onMouseEnter={hover.play}
+            maxLength={50}
             {...register("email", {
               required: "Почта обязательная",
               maxLength: { value: 50, message: "Максимум 50 символов" },
@@ -75,15 +87,16 @@ const SignUpPage: React.FC = () => {
             type="password"
             onClick={click.play}
             onMouseEnter={hover.play}
+            maxLength={20}
             {...register("password", {
               required: "Пароль обязательный",
               minLength: { value: 6, message: "Минимум 6 символов" },
               maxLength: { value: 20, message: "Максимум 20 символов" },
-              pattern: {
-                value: /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]+$/,
-                message:
-                  "Пароль должен содержать буквы и хотя бы одну цифру и не должен содержать спецсимволов",
-              },
+              // pattern: {
+              //   value: /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]+$/,
+              //   message:
+              //     "Пароль должен содержать буквы и хотя бы одну цифру и не должен содержать спецсимволов",
+              // },
             })}
             className={`outline-none text-black w-full px-4 py-2 border ${errors.password ? "border-secondary" : "none"} rounded-[2rem]`}
           />

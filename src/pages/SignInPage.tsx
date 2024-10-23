@@ -1,20 +1,30 @@
 import { motion } from "framer-motion";
 import React from "react";
 import { useForm } from "react-hook-form";
+import { useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
 
-import login from "/log-in.svg";
+import loginIcon from "/log-in.svg";
 
 import { useSoundContext } from "../components/SoundProvider";
+import { loginUser } from "../store/slices/userSlice";
+import { AppDispatch } from "../store/store";
+import { SignInData } from "../types";
+
 const SignInPage: React.FC = () => {
   const { click, hover } = useSoundContext();
+  const dispatch = useDispatch<AppDispatch>();
+  const navigate = useNavigate();
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm();
+  } = useForm<SignInData>();
 
-  const onSubmit = (data: any) => {
-    console.log(data);
+  const onSubmit = (data: SignInData) => {
+    dispatch(loginUser(data)).then(() => {
+      navigate("/chat");
+    });
   };
   return (
     <motion.div
@@ -37,6 +47,8 @@ const SignInPage: React.FC = () => {
             type="email"
             onClick={click.play}
             onMouseEnter={hover.play}
+            maxLength={50}
+            value={"string@gmail.com"}
             {...register("email", {
               required: "Почта обязательная",
               maxLength: { value: 50, message: "Максимум 50 символов" },
@@ -57,15 +69,17 @@ const SignInPage: React.FC = () => {
             type="password"
             onClick={click.play}
             onMouseEnter={hover.play}
+            maxLength={20}
+            value={"string"}
             {...register("password", {
               required: "Пароль обязательный",
               minLength: { value: 6, message: "Минимум 6 символов" },
               maxLength: { value: 20, message: "Максимум 20 символов" },
-              pattern: {
-                value: /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]+$/,
-                message:
-                  "Пароль должен содержать буквы и хотя бы одну цифру и не должен содержать спецсимволов",
-              },
+              // pattern: {
+              //   value: /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]+$/,
+              //   message:
+              //     "Пароль должен содержать буквы и хотя бы одну цифру и не должен содержать спецсимволов",
+              // },
             })}
             autoComplete="on"
             className={`outline-none text-black w-full px-4 py-2 border ${errors.password ? "border-secondary" : "none"} rounded-[2rem]`}
@@ -85,7 +99,7 @@ const SignInPage: React.FC = () => {
         >
           <img
             className="-translate-x-10 group-hover:translate-x-0 group-hover:w-4 transition-all duration-300 w-0 pointer-events-none"
-            src={login}
+            src={loginIcon}
           />
           Войти
         </button>

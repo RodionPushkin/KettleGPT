@@ -19,8 +19,10 @@ const LayoutChat: React.FC = () => (
       }}
       className="min-h-mobile-screen max-h-mobile-screen opacity-0 columns-1 relative"
     >
-      <Backgound />
-      <main className="relative z-10">
+      <div className="absolute w-full h-full">
+        <Backgound />
+      </div>
+      <main className="relative z-10 pt-28 pb-6 px-4 md:px-0 xl:px-0 h-full w-full min-h-mobile-screen flex flex-col overflow-hidden mx-auto  max-w-screen-md lg:max-w-screen-lg xl:max-w-screen-xl">
         <Outlet />
       </main>
     </motion.div>

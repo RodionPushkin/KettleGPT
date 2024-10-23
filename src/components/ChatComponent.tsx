@@ -81,7 +81,7 @@ const ChatComponent: React.FC<{ preview?: boolean; idChat?: string }> = ({
       },
     ],
   ];
-  const question = [
+  const question: string = [
     "Что вас случилось?",
     "Чайник это круто",
     "Я кстати питонист",
@@ -110,7 +110,7 @@ const ChatComponent: React.FC<{ preview?: boolean; idChat?: string }> = ({
     "Почему питон всегда побеждает в шахматы? У него есть алгоритмы!",
     "Говорят нейросеть строили на HTML, тихо! Только никому!",
     "Очень жду от вас сообщение!",
-  ];
+  ][Math.round(Math.random() * 28)];
   const chat = useRef([]);
   useEffect(() => {
     if (idChat) {
@@ -149,21 +149,19 @@ const ChatComponent: React.FC<{ preview?: boolean; idChat?: string }> = ({
         >
           {chat.current.length === 0 ? (
             <div className="select-none text-xl">
-              {question[Math.round(Math.random() * question.length)]
-                .split("")
-                .map((el, i) => (
-                  <motion.span
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{
-                      duration: 0.25,
-                      delay: i / 10 + 2.4,
-                    }}
-                    key={i}
-                  >
-                    {el}
-                  </motion.span>
-                ))}
+              {question.split("").map((el, i) => (
+                <motion.span
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{
+                    duration: 0.25,
+                    delay: i / 10 + 2.4,
+                  }}
+                  key={i}
+                >
+                  {el}
+                </motion.span>
+              ))}
             </div>
           ) : (
             chat.current.map(

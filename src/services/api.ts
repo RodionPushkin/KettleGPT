@@ -1,23 +1,12 @@
 import axios from "axios";
 
-interface Token {
-  accessToken: string;
-  refreshToken: string;
-}
-interface User {
-  email: string;
-  password: string;
-}
-interface SignInResponse extends User {}
-interface SignUpResponse extends SignInResponse {
-  username: string;
-}
+import { Chat, Message, SignInData, SignUpData, Token, User } from "../types";
 
 const loadTokens = (): Token => {
   const refreshToken = localStorage.getItem("refreshToken");
   const accessToken = document.cookie
     .split(";")
-    .find((row) => row.startsWith("accessToken="))
+    .find((row) => row.includes("accessToken="))
     ?.split("=")[1];
   return {
     accessToken: accessToken || "",
@@ -27,9 +16,18 @@ const loadTokens = (): Token => {
 
 const saveTokens = (token: Token) => {
   localStorage.setItem("refreshToken", token.refreshToken);
-  document.cookie = `accessToken=${token.accessToken}`;
+  const yearInMilliseconds = 365 * 24 * 60 * 60 * 1000;
+  const expiryDate = new Date(Date.now() + yearInMilliseconds).toUTCString();
+  document.cookie = `accessToken=${token.accessToken}; expires=${expiryDate};`;
 };
+
+const deleteTokens = (callback: () => void) => {
+  saveTokens({ accessToken: "", refreshToken: "" });
+  callback();
+};
+
 const tokens = loadTokens();
+
 const api = axios.create({
   baseURL: "http://hackers54.ru:3000/api",
   headers: {
@@ -39,68 +37,70 @@ const api = axios.create({
   },
 });
 
-api.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    console.error("Error occurred:", error);
-    return Promise.reject(error);
+api.interceptors.request.use(
+  (config) => {
+    const tokens = loadTokens();
+    if (tokens.accessToken) {
+      config.headers["Authorization"] = `Bearer ${tokens.accessToken}`; // обновляем заголовок Authorization
+    }
+    return config;
   },
+  (error) => Promise.reject(error),
 );
-export const signUp = (
-  user: User,
-  // eslint-disable-next-line no-unused-vars
-  callback: ({ username, email, password }: SignUpResponse) => void,
-) => {
-  api.post("/auth/signup", user).then((res) => {
-    saveTokens({
-      accessToken: res.data.accessToken,
-      refreshToken: res.data.refreshToken,
-    });
-    callback(res.data);
+
+export const signUp = async (user: SignUpData): Promise<User> => {
+  const res = await api.post("/auth/signup", user);
+  saveTokens({
+    accessToken: res.data.accessToken,
+    refreshToken: res.data.refreshToken,
   });
+  return res.data.user;
 };
-export const signIn = (
-  user: User,
-  // eslint-disable-next-line no-unused-vars
-  callback: ({ email, password }: SignInResponse) => void,
-) => {
-  api.post("/auth/signin", user).then((res) => {
-    saveTokens({
-      accessToken: res.data.accessToken,
-      refreshToken: res.data.refreshToken,
-    });
-    callback(res.data);
+
+export const signIn = async (user: SignInData): Promise<User> => {
+  const res = await api.post("/auth/signin", user);
+  saveTokens({
+    accessToken: res.data.accessToken,
+    refreshToken: res.data.refreshToken,
   });
+  return res.data.user;
 };
-export const refresh = (): void => {
-  api
-    .post("/auth/refresh", { refreshToken: loadTokens().refreshToken })
-    .then((res) => {
-      saveTokens(res.data);
-    });
+
+export const self = async (): Promise<User> => {
+  const res = await api.get("/user/self");
+  return res.data;
 };
-// eslint-disable-next-line no-unused-vars
-export const createChat = (name: string, callback: (data: any) => void) => {
-  api.post(`/chat/${name}`).then((res) => {
-    callback(res.data);
+
+export const signOut = async (): Promise<void> => {
+  deleteTokens(() => {});
+};
+
+export const refresh = async (): Promise<void> => {
+  const res = await api.post("/auth/refresh", {
+    refreshToken: loadTokens().refreshToken,
   });
+  saveTokens(res.data);
 };
-// eslint-disable-next-line no-unused-vars
-export const getChats = (callback: (data: any) => void) => {
-  api.get(`/chat/all`).then((res) => {
-    callback(res.data);
-  });
+
+export const createChat = async (name: string): Promise<Chat> => {
+  const res = await api.post(`/chat/${name}`);
+  delete res.data.userUuid;
+  return res.data;
 };
-// eslint-disable-next-line no-unused-vars
-export const getChatByID = (id: string, callback: (data: any) => void) => {
-  api.get(`/chat/${id}`).then((res) => {
-    callback(res.data);
-  });
+
+export const getChats = async (): Promise<Chat[]> => {
+  const res = await api.get(`/chat/all`);
+  return res.data;
 };
-// eslint-disable-next-line no-unused-vars
-export const deleteChat = (id: string, callback: (data: any) => void) => {
-  api.delete(`/chat/${id}`).then((res) => {
-    callback(res.data);
-  });
+
+export const getChatByID = async (id: string): Promise<Message[]> => {
+  const res = await api.get(`/chat/${id}`);
+  return res.data;
 };
+
+export const deleteChat = async (id: string): Promise<Chat> => {
+  const res = await api.delete(`/chat/${id}`);
+  return res.data;
+};
+
 export default api;
